@@ -1,6 +1,6 @@
 package com.huertohogar.huerto_api.service.usuarios;
 
-import com.huertohogar.huerto_api.model.Usuarios.Usuario;
+import com.huertohogar.huerto_api.model.usuarios.Usuario;
 
 import java.util.List;
 

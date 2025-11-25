@@ -1,7 +1,7 @@
 package com.huertohogar.huerto_api.controller.usuarios;
 
-import com.huertohogar.huerto_api.model.Usuarios.Usuario;
-import com.huertohogar.huerto_api.service.Usuarios.UsuarioService;
+import com.huertohogar.huerto_api.model.usuarios.Usuario;
+import com.huertohogar.huerto_api.service.usuarios.UsuarioService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

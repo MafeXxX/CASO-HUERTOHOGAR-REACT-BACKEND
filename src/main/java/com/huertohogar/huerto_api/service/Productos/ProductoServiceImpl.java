@@ -1,7 +1,7 @@
 package com.huertohogar.huerto_api.service.productos;
 
-import com.huertohogar.huerto_api.model.Productos.Producto;
-import com.huertohogar.huerto_api.repository.Productos.ProductoRepository;
+import com.huertohogar.huerto_api.model.productos.Producto;
+import com.huertohogar.huerto_api.repository.productos.ProductoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

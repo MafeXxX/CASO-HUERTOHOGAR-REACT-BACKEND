@@ -1,7 +1,6 @@
-// src/main/java/com/huertohogar/huerto_api/security/JwtFilter.java
 package com.huertohogar.huerto_api.security;
 
-import com.huertohogar.huerto_api.service.Usuarios.UsuarioDetailsService;
+import com.huertohogar.huerto_api.service.usuarios.UsuarioDetailsService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
@@ -31,17 +30,15 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = null;
         String jwt = null;
 
-        // Esperamos "Authorization: Bearer <token>"
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                // token inválido, seguimos sin autenticar
+                // token inválido; seguimos sin autenticar
             }
         }
 
-        // Si tenemos username y todavía no está autenticado
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
 
