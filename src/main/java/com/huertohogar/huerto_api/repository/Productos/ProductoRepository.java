@@ -1,0 +1,13 @@
+package com.huertohogar.huerto_api.repository.productos;
+
+import com.huertohogar.huerto_api.model.Productos.Producto;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ProductoRepository extends JpaRepository<Producto, Long> {
+
+    Producto findByCodigo(String codigo);
+
+    List<Producto> findByCategoria(String categoria);
+}
