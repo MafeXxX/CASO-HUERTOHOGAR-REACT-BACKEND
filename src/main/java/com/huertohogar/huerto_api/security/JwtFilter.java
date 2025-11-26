@@ -1,9 +1,10 @@
-// src/main/java/com/huertohogar/huerto_api/security/JwtFilter.java
 package com.huertohogar.huerto_api.security;
 
-import com.huertohogar.huerto_api.service.Usuarios.UsuarioDetailsService;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import com.huertohogar.huerto_api.service.usuarios.UsuarioDetailsService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,26 +23,25 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UsuarioDetailsService usuarioDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
 
-        // Esperamos "Authorization: Bearer <token>"
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                // token inválido, seguimos sin autenticar
+                // token inválido, lo ignoramos
             }
         }
 
-        // Si tenemos username y todavía no está autenticado
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
 

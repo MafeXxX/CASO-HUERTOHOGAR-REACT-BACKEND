@@ -1,6 +1,6 @@
 package com.huertohogar.huerto_api.repository.productos;
 
-import com.huertohogar.huerto_api.model.Productos.Producto;
+import com.huertohogar.huerto_api.model.productos.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

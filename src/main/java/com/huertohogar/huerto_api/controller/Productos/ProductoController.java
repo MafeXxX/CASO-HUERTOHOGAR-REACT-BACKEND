@@ -1,7 +1,7 @@
 package com.huertohogar.huerto_api.controller.productos;
 
-import com.huertohogar.huerto_api.model.Productos.Producto;
-import com.huertohogar.huerto_api.service.Productos.ProductoService;
+import com.huertohogar.huerto_api.model.productos.Producto;
+import com.huertohogar.huerto_api.service.productos.ProductoService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

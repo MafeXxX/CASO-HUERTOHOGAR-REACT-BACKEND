@@ -1,6 +1,6 @@
 package com.huertohogar.huerto_api.service.productos;
 
-import com.huertohogar.huerto_api.model.Productos.Producto;
+import com.huertohogar.huerto_api.model.productos.Producto;
 
 import java.util.List;
 

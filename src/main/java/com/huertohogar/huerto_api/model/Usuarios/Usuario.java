@@ -14,16 +14,16 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;   // PK real en BD (no confundir con el "id" del JSON)
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String username;   // admin, Maria, Pedro...
+    private String username;
 
     @Column(nullable = false, length = 255)
-    private String password;   // luego lo encriptaremos con Spring Security
+    private String password;
 
     @Column(nullable = false, length = 20)
-    private String role;       // admin, cliente, vendedor
+    private String role;   // admin, cliente, vendedor
 
     @Column(length = 100)
     private String nombre;
@@ -35,7 +35,7 @@ public class Usuario {
     private String run;
 
     @Column(name = "fecha_nacimiento", length = 20)
-    private String fechaNacimiento;  // lo dejamos como String (formato dd/MM/yyyy)
+    private String fechaNacimiento;
 
     @Column(length = 100)
     private String region;

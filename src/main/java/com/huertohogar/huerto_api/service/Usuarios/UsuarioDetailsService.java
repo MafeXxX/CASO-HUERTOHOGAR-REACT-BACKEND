@@ -1,8 +1,7 @@
-// src/main/java/com/huertohogar/huerto_api/service/Usuarios/UsuarioDetailsService.java
 package com.huertohogar.huerto_api.service.usuarios;
 
-import com.huertohogar.huerto_api.model.Usuarios.Usuario;
-import com.huertohogar.huerto_api.repository.Usuarios.UsuarioRepository;
+import com.huertohogar.huerto_api.model.usuarios.Usuario;
+import com.huertohogar.huerto_api.repository.usuarios.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +20,6 @@ public class UsuarioDetailsService implements UserDetailsService {
         Usuario u = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        // rol como "ROLE_ADMIN", "ROLE_CLIENTE", etc.
         String roleUpper = u.getRole().toUpperCase(); // admin, cliente, vendedor
         return new User(
                 u.getUsername(),

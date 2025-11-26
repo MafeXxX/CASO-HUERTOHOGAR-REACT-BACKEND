@@ -1,10 +1,10 @@
 // src/main/java/com/huertohogar/huerto_api/controller/Usuarios/AuthController.java
 package com.huertohogar.huerto_api.controller.usuarios;
 
-import com.huertohogar.huerto_api.dto.Usuarios.LoginRequestDTO;
-import com.huertohogar.huerto_api.dto.Usuarios.LoginResponseDTO;
-import com.huertohogar.huerto_api.model.Usuarios.Usuario;
-import com.huertohogar.huerto_api.repository.Usuarios.UsuarioRepository;
+import com.huertohogar.huerto_api.dto.usuarios.LoginRequestDTO;
+import com.huertohogar.huerto_api.dto.usuarios.LoginResponseDTO;
+import com.huertohogar.huerto_api.model.usuarios.Usuario;
+import com.huertohogar.huerto_api.repository.usuarios.UsuarioRepository;
 import com.huertohogar.huerto_api.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
