@@ -7,9 +7,15 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
+    // Para login por username o email
+    Optional<Usuario> findByUsernameIgnoreCaseOrEmailIgnoreCase(String username, String email);
+
+    // Para validar duplicados en registro
+    boolean existsByUsernameIgnoreCaseOrEmailIgnoreCase(String username, String email);
+
+    // Para cargar usuario por username (UserDetailsService)
     Optional<Usuario> findByUsername(String username);
 
-    boolean existsByUsername(String username);
-
-    boolean existsByEmail(String email);
+    // Si quieres que ignore mayúsculas/minúsculas:
+    Optional<Usuario> findByUsernameIgnoreCase(String username);
 }

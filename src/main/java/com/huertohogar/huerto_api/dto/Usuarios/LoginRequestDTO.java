@@ -1,13 +1,31 @@
-// src/main/java/com/huertohogar/huerto_api/dto/Usuarios/LoginRequestDTO.java
 package com.huertohogar.huerto_api.dto.usuarios;
 
-import lombok.*;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class LoginRequestDTO {
-    private String username;
+
+    private String usernameOrEmail;
     private String password;
+
+    public LoginRequestDTO() {
+    }
+
+    public LoginRequestDTO(String usernameOrEmail, String password) {
+        this.usernameOrEmail = usernameOrEmail;
+        this.password = password;
+    }
+
+    public String getUsernameOrEmail() {
+        return usernameOrEmail;
+    }
+
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.usernameOrEmail = usernameOrEmail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

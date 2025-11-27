@@ -18,14 +18,14 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, length = 10, unique = true)
     private String codigo;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 100)
     private String nombre;
 
     @Column(nullable = false)
-    private Integer precio;
+    private Integer precio;   // mapea NUMBER(10,2)
 
     @Column(nullable = false)
     private Integer stock;
@@ -33,26 +33,27 @@ public class Producto {
     @Column(name = "descripcion_corta", length = 255)
     private String descripcionCorta;
 
-    @Column(name = "descripcion_larga", length = 4000)
+    @Column(name = "descripcion_larga", length = 2000)
     private String descripcionLarga;
 
-    @Column(length = 500)
+    @Column(length = 255)
     private String imagen;
 
-    @Column(length = 100)
-    private String categoria;
+    @Column(name = "category_id")
+    private Integer categoryId;
 
     @Column(length = 100)
     private String origen;
 
-    @Column(name = "practicas_sostenibles", length = 500)
+    @Column(name = "practicas_sostenibles", length = 255)
     private String practicasSostenibles;
 
-    @ElementCollection
+    // 👇 AQUÍ EL CAMBIO IMPORTANTE: EAGER
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "PRODUCTO_RECETA",
             joinColumns = @JoinColumn(name = "producto_id")
     )
-    @Column(name = "receta", length = 200)
+    @Column(name = "receta", length = 255)
     private List<String> recetas;
 }

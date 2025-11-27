@@ -38,7 +38,9 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Producto actualizar(Long id, Producto p) {
         Producto base = repo.findById(id).orElse(null);
-        if (base == null) return null;
+        if (base == null) {
+            return null;
+        }
 
         base.setCodigo(p.getCodigo());
         base.setNombre(p.getNombre());
@@ -47,7 +49,16 @@ public class ProductoServiceImpl implements ProductoService {
         base.setDescripcionCorta(p.getDescripcionCorta());
         base.setDescripcionLarga(p.getDescripcionLarga());
         base.setImagen(p.getImagen());
-        base.setCategoria(p.getCategoria());
+
+        // si tu entidad Producto tiene este campo:
+        // private Integer categoryId;
+        // entonces copiamos también:
+        try {
+            base.setCategoryId(p.getCategoryId());
+        } catch (NoSuchMethodError | NullPointerException e) {
+            // si no existe el método, simplemente lo ignoramos
+        }
+
         base.setOrigen(p.getOrigen());
         base.setPracticasSostenibles(p.getPracticasSostenibles());
         base.setRecetas(p.getRecetas());
