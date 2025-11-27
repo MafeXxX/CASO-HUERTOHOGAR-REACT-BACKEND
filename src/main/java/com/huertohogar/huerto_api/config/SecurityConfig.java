@@ -21,17 +21,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Desactivamos CSRF
             .csrf(csrf -> csrf.disable())
-            // Sin sesiones de servidor (API stateless)
             .sessionManagement(sess ->
                     sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            // 🔓 De momento TODO permitido (incluye /api/v1/blogs/**)
             .authorizeHttpRequests(auth -> auth
                     .anyRequest().permitAll()
             )
-            // CORS para permitir el frontend
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
@@ -42,7 +38,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // CORS para permitir el frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
