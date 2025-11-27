@@ -21,17 +21,20 @@ public class DataInitializer implements CommandLineRunner {
         // 1) Borrar tablas si existen (hijo -> padre para no romper FKs)
         dropTableIfExists("PRODUCTO_RECETA");
         dropTableIfExists("PRODUCTO");
+        dropTableIfExists("CATEGORIA");
         dropTableIfExists("USUARIO");
         dropTableIfExists("BLOG");
 
         // 2) Crear tablas
         crearTablaUsuario();
+        crearTablaCategoria();
         crearTablaProducto();
         crearTablaProductoReceta();
         crearTablaBlog();
 
         // 3) Poblar datos
         poblarUsuarios();
+        poblarCategorias();
         poblarProductos();
         poblarProductoRecetas();
         poblarBlogs();
@@ -84,6 +87,21 @@ public class DataInitializer implements CommandLineRunner {
                 """);
         jdbcTemplate.execute("""
                 CREATE UNIQUE INDEX UK_USUARIO_EMAIL ON USUARIO (EMAIL)
+                """);
+    }
+
+    // NUEVA TABLA CATEGORIA
+    private void crearTablaCategoria() {
+        jdbcTemplate.execute("""
+                CREATE TABLE CATEGORIA (
+                    ID     NUMBER(10)          PRIMARY KEY,
+                    NOMBRE VARCHAR2(100 CHAR)  NOT NULL,
+                    SLUG   VARCHAR2(100 CHAR)  NOT NULL
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE UNIQUE INDEX UK_CATEGORIA_SLUG ON CATEGORIA (SLUG)
                 """);
     }
 
@@ -177,6 +195,31 @@ public class DataInitializer implements CommandLineRunner {
                     TO_DATE('15/08/1985','DD/MM/YYYY'),
                     'Biobío', 'Chillán', '0289-K', 'pedro@profesor.duoc.cl'
                 )
+                """);
+    }
+
+    // -------------------------------------------------------------------------
+    // POBLAR CATEGORÍAS
+    // -------------------------------------------------------------------------
+    private void poblarCategorias() {
+        jdbcTemplate.update("""
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
+                VALUES (1, 'Frutas Frescas', 'frutas-frescas')
+                """);
+
+        jdbcTemplate.update("""
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
+                VALUES (2, 'Verduras Orgánicas', 'verduras-organicas')
+                """);
+
+        jdbcTemplate.update("""
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
+                VALUES (3, 'Productos Orgánicos', 'productos-organicos')
+                """);
+
+        jdbcTemplate.update("""
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
+                VALUES (4, 'Productos Lácteos', 'productos-lacteos')
                 """);
     }
 

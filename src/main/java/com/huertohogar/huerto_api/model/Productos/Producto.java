@@ -18,14 +18,15 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 10, unique = true)
+    // Código único del producto (ej: MANZ001)
+    @Column(length = 10, nullable = false, unique = true)
     private String codigo;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100, nullable = false)
     private String nombre;
 
     @Column(nullable = false)
-    private Integer precio;   // mapea NUMBER(10,2)
+    private Double precio;
 
     @Column(nullable = false)
     private Integer stock;
@@ -39,21 +40,54 @@ public class Producto {
     @Column(length = 255)
     private String imagen;
 
-    @Column(name = "category_id")
+    // 🔢 ID numérico de categoría (columna CATEGORY_ID en la BDD)
+    @Column(name = "CATEGORY_ID")
     private Integer categoryId;
 
     @Column(length = 100)
     private String origen;
 
-    @Column(name = "practicas_sostenibles", length = 255)
+    @Column(name = "practicas_sostenibles", length = 500)
     private String practicasSostenibles;
 
-    // 👇 AQUÍ EL CAMBIO IMPORTANTE: EAGER
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     @CollectionTable(
             name = "PRODUCTO_RECETA",
             joinColumns = @JoinColumn(name = "producto_id")
     )
-    @Column(name = "receta", length = 255)
+    @Column(name = "receta", length = 200)
     private List<String> recetas;
+
+    // 🟢 Campo virtual: NO existe en la tabla, pero sí en el JSON que ve el frontend
+    @Transient
+    private String categoria;
+
+    /**
+     * Devuelve el nombre de la categoría.
+     * - Si ya viene seteado (p.ej. desde productos extra en localStorage), se respeta.
+     * - Si no, se calcula a partir de categoryId.
+     */
+    public String getCategoria() {
+        if (categoria != null && !categoria.isBlank()) {
+            return categoria;
+        }
+        if (categoryId == null) {
+            return null;
+        }
+        return switch (categoryId) {
+            case 1 -> "Frutas Frescas";
+            case 2 -> "Verduras Orgánicas";
+            case 3 -> "Productos Orgánicos";
+            case 4 -> "Productos Lácteos";
+            default -> null;
+        };
+    }
+
+    /**
+     * Permite setearla manualmente (por ejemplo, si viene desde otro origen),
+     * sin afectar la columna CATEGORY_ID.
+     */
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
 }

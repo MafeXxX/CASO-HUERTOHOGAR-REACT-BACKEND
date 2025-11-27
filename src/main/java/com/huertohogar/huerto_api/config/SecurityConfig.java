@@ -1,4 +1,3 @@
-// src/main/java/com/huertohogar/huerto_api/config/SecurityConfig.java
 package com.huertohogar.huerto_api.config;
 
 import com.huertohogar.huerto_api.security.JwtFilter;
@@ -33,7 +32,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // desactivamos CSRF porque usamos API stateless
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess ->
                         sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -41,16 +39,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // login / registro sin token
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // documentación (si la usas)
+
+                        // swagger / docs si los usas
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        // 🔓 GET de productos y blogs públicos
+
+                        // 🔓 endpoints públicos GET
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/blog/**").permitAll()
-                        // todo lo demás requiere estar autenticado
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categorias/**").permitAll()
+
+                        // todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(usuarioDetailsService)
@@ -72,11 +74,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // CORS para permitir tu frontend Vite/React
+    // CORS para permitir el frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
