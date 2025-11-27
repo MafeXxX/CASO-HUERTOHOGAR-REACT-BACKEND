@@ -3,8 +3,6 @@ package com.huertohogar.huerto_api.model.blogs;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "BLOG")
 @Getter
@@ -18,14 +16,8 @@ public class Blog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "blog_id", nullable = false, unique = true, length = 50)
+    @Column(name = "BLOG_ID", length = 50, nullable = false)
     private String blogId;
-
-    @Column(nullable = false, length = 150)
-    private String titulo;
-
-    @Column(nullable = false, length = 500)
-    private String resumen;
 
     @Column(length = 200)
     private String imagen;
@@ -33,19 +25,21 @@ public class Blog {
     @Column(length = 150)
     private String alt;
 
-    @Column(name = "titulo_modal", length = 200)
+    @Column(length = 150, nullable = false)
+    private String titulo;
+
+    @Column(name = "TITULO_MODAL", length = 200)
     private String tituloModal;
+
+    @Column(name = "RESUMEN", length = 500, nullable = false)
+    private String resumen;
 
     @Column(length = 2000)
     private String intro;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "BLOG_CONTENIDO",
-            joinColumns = @JoinColumn(name = "blog_id_fk")
-    )
-    @Column(name = "parrafo", length = 1000)
-    private List<String> contenido;
+    // 👇 Campo simple, YA NO hay tabla BLOG_CONTENIDO
+    @Column(name = "CONTENIDO", length = 4000)
+    private String contenido;
 
     @Column(length = 2000)
     private String outro;
