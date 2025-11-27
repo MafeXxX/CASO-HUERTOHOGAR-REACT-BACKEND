@@ -22,7 +22,7 @@ public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;   // 👈 inyectamos el encoder
+    private final PasswordEncoder passwordEncoder;
 
     // =========================================================
     //                       LOGIN
@@ -50,13 +50,12 @@ public class AuthController {
 
         Usuario usuario = optUsuario.get();
 
-        // ✅ Comparamos usando BCrypt
+        // Comparamos usando BCrypt
         if (!passwordEncoder.matches(password, usuario.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String token = jwtUtil.generateToken(usuario.getUsername(), usuario.getRole());
-
         UsuarioDTO usuarioDTO = mapToDTO(usuario);
         LoginResponseDTO response = new LoginResponseDTO(token, usuarioDTO);
 
@@ -76,13 +75,17 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
+            String usernameTrim = dto.getUsername().trim();
+            String emailTrim = dto.getEmail().trim();
+
             boolean exists = usuarioRepository
                     .existsByUsernameIgnoreCaseOrEmailIgnoreCase(
-                            dto.getUsername().trim(),
-                            dto.getEmail().trim()
+                            usernameTrim,
+                            emailTrim
                     );
 
             if (exists) {
+                // usuario o email repetido
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
 
@@ -93,7 +96,7 @@ public class AuthController {
                 usuario.setRole("cliente");
             }
 
-            // 🔐 Hash de la contraseña
+            // Hash de la contraseña
             usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
             Usuario saved = usuarioRepository.save(usuario);
@@ -101,7 +104,7 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
         } catch (Exception e) {
-            e.printStackTrace(); // para que lo veas en la consola de NetBeans
+            e.printStackTrace(); // para ver el error real en la consola de NetBeans
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -123,24 +126,31 @@ public class AuthController {
         dto.setRegion(u.getRegion());
         dto.setComuna(u.getComuna());
         dto.setDireccion(u.getDireccion());
-        // ⚠ NO devolvemos la contraseña
+        // No devolvemos la contraseña
         return dto;
     }
 
     private Usuario mapToEntity(UsuarioDTO dto) {
         Usuario u = new Usuario();
-        u.setId(dto.getId());
-        u.setUsername(dto.getUsername());
-        u.setEmail(dto.getEmail());
-        u.setRole(dto.getRole());
-        u.setNombre(dto.getNombre());
-        u.setApellido(dto.getApellido());
-        u.setRun(dto.getRun());
+
+        // NO seteamos el ID: lo genera la BDD (IDENTITY)
+        // u.setId(dto.getId());
+
+        u.setUsername(dto.getUsername() != null ? dto.getUsername().trim() : null);
+        u.setEmail(dto.getEmail() != null ? dto.getEmail().trim() : null);
+        u.setRole(dto.getRole() != null ? dto.getRole().trim() : null);
+
+        u.setNombre(dto.getNombre() != null ? dto.getNombre().trim() : null);
+        u.setApellido(dto.getApellido() != null ? dto.getApellido().trim() : null);
+        u.setRun(dto.getRun() != null ? dto.getRun().trim() : null);
+        u.setRegion(dto.getRegion() != null ? dto.getRegion().trim() : null);
+        u.setComuna(dto.getComuna() != null ? dto.getComuna().trim() : null);
+        u.setDireccion(dto.getDireccion() != null ? dto.getDireccion().trim() : null);
+
+        // Fecha de nacimiento: se copia tal cual (puede ser null)
         u.setFechaNacimiento(dto.getFechaNacimiento());
-        u.setRegion(dto.getRegion());
-        u.setComuna(dto.getComuna());
-        u.setDireccion(dto.getDireccion());
-        // La contraseña la seteamos en el register con el encoder
+
+        // La contraseña se setea luego en register() con el encoder
         return u;
     }
 }
