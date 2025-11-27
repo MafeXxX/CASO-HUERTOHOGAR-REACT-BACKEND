@@ -1,16 +1,31 @@
-// src/main/java/com/huertohogar/huerto_api/dto/Usuarios/LoginResponseDTO.java
 package com.huertohogar.huerto_api.dto.usuarios;
 
-import lombok.*;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class LoginResponseDTO {
-    private Long id;
-    private String username;
-    private String role;
+
     private String token;
+    private UsuarioDTO usuario;
+
+    public LoginResponseDTO() {
+    }
+
+    public LoginResponseDTO(String token, UsuarioDTO usuario) {
+        this.token = token;
+        this.usuario = usuario;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public UsuarioDTO getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UsuarioDTO usuario) {
+        this.usuario = usuario;
+    }
 }

@@ -20,10 +20,11 @@ public class UsuarioDetailsService implements UserDetailsService {
         Usuario u = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        String roleUpper = u.getRole().toUpperCase(); // admin, cliente, vendedor
+        String roleUpper = u.getRole().toUpperCase(); // ADMIN, CLIENTE, VENDEDOR...
+
         return new User(
                 u.getUsername(),
-                u.getPassword(),
+                u.getPassword(), // 👈 aquí va el hash BCrypt
                 List.of(new SimpleGrantedAuthority("ROLE_" + roleUpper))
         );
     }
