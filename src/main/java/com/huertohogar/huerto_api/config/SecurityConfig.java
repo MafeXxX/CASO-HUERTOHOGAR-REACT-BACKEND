@@ -21,17 +21,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // desactivamos CSRF
+            // Desactivamos CSRF
             .csrf(csrf -> csrf.disable())
-            // sin sesiones de servidor
+            // Sin sesiones de servidor (API stateless)
             .sessionManagement(sess ->
                     sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            // 🔓 TODO permitido (ningún endpoint protegido)
+            // 🔓 De momento TODO permitido (incluye /api/v1/blogs/**)
             .authorizeHttpRequests(auth -> auth
                     .anyRequest().permitAll()
             )
-            // CORS
+            // CORS para permitir el frontend
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();

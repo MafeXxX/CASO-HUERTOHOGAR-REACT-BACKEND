@@ -6,11 +6,9 @@ import java.util.List;
 
 public interface BlogService {
 
-    List<Blog> listar();
+    List<Blog> listarTodos();
 
-    Blog buscarPorId(Long id);
-
-    Blog buscarPorBlogId(String blogId);
+    Blog obtenerPorId(Long id);
 
     Blog crear(Blog blog);
 
