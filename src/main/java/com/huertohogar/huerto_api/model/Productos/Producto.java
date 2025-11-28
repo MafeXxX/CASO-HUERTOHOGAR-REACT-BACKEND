@@ -37,7 +37,8 @@ public class Producto {
     @Column(name = "descripcion_larga", length = 2000)
     private String descripcionLarga;
 
-    @Column(length = 255)
+    @Lob
+    @Column
     private String imagen;
 
     // 🔢 ID numérico de categoría (columna CATEGORY_ID en la BDD)

@@ -121,10 +121,10 @@ public class DataInitializer implements CommandLineRunner {
                     STOCK                 NUMBER(10)        NOT NULL,
                     DESCRIPCION_CORTA     VARCHAR2(255 CHAR),
                     DESCRIPCION_LARGA     VARCHAR2(2000 CHAR),
-                    IMAGEN                VARCHAR2(255 CHAR),
+                    IMAGEN                CLOB,
                     CATEGORY_ID           NUMBER(10),
                     ORIGEN                VARCHAR2(100 CHAR),
-                    PRACTICAS_SOSTENIBLES VARCHAR2(255 CHAR),
+                    PRACTICAS_SOSTENIBLES VARCHAR2(500 CHAR),
                     PRIMARY KEY (ID),
                     CONSTRAINT FK_PRODUCTO_CATEGORIA
                       FOREIGN KEY (CATEGORY_ID)
@@ -295,11 +295,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    1,
                     'FR001',
                     'Kilo de manzanas Fuji',
                     1200, 150,
@@ -314,11 +313,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    2,
                     'FR002',
                     'Kilo de naranjas Valencia',
                     1000, 200,
@@ -333,11 +331,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    3,
                     'FR003',
                     'Kilo de plátanos Cavendish',
                     800, 250,
@@ -352,11 +349,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    4,
                     'VR001',
                     'Kilo de zanahorias Orgánicas',
                     900, 100,
@@ -371,11 +367,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    5,
                     'VR002',
                     'Bolsa de 500g espinacas Frescas',
                     700, 80,
@@ -390,11 +385,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    6,
                     'VR003',
                     'Kilo de pimientos Tricolores',
                     1500, 120,
@@ -409,11 +403,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    7,
                     'PO001',
                     'Frasco de 500g miel Orgánica',
                     5000, 50,
@@ -428,11 +421,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    8,
                     'PO003',
                     'Quinua Orgánica (500g)',
                     2500, 60,
@@ -447,11 +439,10 @@ public class DataInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO PRODUCTO (
-                    ID, CODIGO, NOMBRE, PRECIO, STOCK,
+                    CODIGO, NOMBRE, PRECIO, STOCK,
                     DESCRIPCION_CORTA, DESCRIPCION_LARGA,
                     IMAGEN, CATEGORY_ID, ORIGEN, PRACTICAS_SOSTENIBLES
                 ) VALUES (
-                    9,
                     'PL001',
                     'Litro de leche Entera',
                     1200, 90,
@@ -541,10 +532,9 @@ public class DataInitializer implements CommandLineRunner {
         // BLOG 1
         jdbcTemplate.update("""
                 INSERT INTO BLOG (
-                    ID, BLOG_ID, IMAGEN, ALT, TITULO, TITULO_MODAL,
+                    BLOG_ID, IMAGEN, ALT, TITULO, TITULO_MODAL,
                     RESUMEN, INTRO, CONTENIDO, OUTRO
                 ) VALUES (
-                    1,
                     'blogModal1',
                     'img-blog1.webp',
                     'Caso curioso 1',
@@ -560,10 +550,9 @@ public class DataInitializer implements CommandLineRunner {
         // BLOG 2
         jdbcTemplate.update("""
                 INSERT INTO BLOG (
-                    ID, BLOG_ID, IMAGEN, ALT, TITULO, TITULO_MODAL,
+                    BLOG_ID, IMAGEN, ALT, TITULO, TITULO_MODAL,
                     RESUMEN, INTRO, CONTENIDO, OUTRO
                 ) VALUES (
-                    2,
                     'blogModal2',
                     'img-blog2.jpg',
                     'Caso curioso 2',
