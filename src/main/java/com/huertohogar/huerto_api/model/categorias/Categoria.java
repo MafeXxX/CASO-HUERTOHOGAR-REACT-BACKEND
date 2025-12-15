@@ -13,12 +13,21 @@ import lombok.*;
 public class Categoria {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categoria_seq")
+    @SequenceGenerator(
+            name = "categoria_seq",
+            sequenceName = "CATEGORIA_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "ID")
-    private Integer id;   // usamos el mismo id que en tu JSON
+    private Integer id;
 
     @Column(name = "NOMBRE", length = 100, nullable = false)
     private String nombre;
 
     @Column(name = "SLUG", length = 100, nullable = false, unique = true)
     private String slug;
+
+    @Column(name = "DESCRIPCION", length = 2000)
+    private String descripcion;
 }
