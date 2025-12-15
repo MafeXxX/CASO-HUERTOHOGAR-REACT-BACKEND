@@ -18,14 +18,23 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
+        // 0) Secuencia de categorías (para que JPA pueda generar IDs sin depender de SQL Developer)
+        dropSequenceIfExists("CATEGORIA_SEQ");
+
         // 1) Borrar tablas si existen (hijo -> padre para no romper FKs)
         dropTableIfExists("PRODUCTO_RECETA");
         dropTableIfExists("PRODUCTO");
         dropTableIfExists("CATEGORIA");
+
+        // ✅ NUEVO: tabla puente hijo (depende de USUARIO y COMPRA)
+        dropTableIfExists("USUARIO_COMPRA");
+
+        // ✅ Orden recomendado (padres después del hijo)
+        dropTableIfExists("COMPRA");
         dropTableIfExists("USUARIO");
+
         dropTableIfExists("BLOG");
-        dropTableIfExists("MENSAJE_CONTACTO"); // 👈 nueva tabla mensajes contacto
-        dropTableIfExists("COMPRA");           // 👈 tabla de compras
+        dropTableIfExists("MENSAJE_CONTACTO");
 
         // 2) Crear tablas
         crearTablaUsuario();
@@ -33,8 +42,14 @@ public class DataInitializer implements CommandLineRunner {
         crearTablaProducto();
         crearTablaProductoReceta();
         crearTablaBlog();
-        crearTablaMensajeContacto(); // 👈 creación tabla mensajes contacto
-        crearTablaCompra();          // 👈 creación tabla COMPRA
+        crearTablaMensajeContacto();
+        crearTablaCompra();
+
+        // ✅ NUEVO: crear tabla puente luego de USUARIO y COMPRA
+        crearTablaUsuarioCompra();
+
+        // 2.1) Crear secuencia luego de crear tabla (START WITH 5 porque seeds ocupan 1..4)
+        createSequenceCategoria(5);
 
         // 3) Poblar datos
         poblarUsuarios();
@@ -42,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
         poblarProductos();
         poblarProductoRecetas();
         poblarBlogs();
-        poblarMensajesContacto(); // 👈 mensaje de contacto demo (opcional)
+        poblarMensajesContacto();
     }
 
     // -------------------------------------------------------------------------
@@ -64,6 +79,34 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             // ignoramos el error para no bloquear el arranque
         }
+    }
+
+    private void dropSequenceIfExists(String seqName) {
+        String sql = """
+                BEGIN
+                  EXECUTE IMMEDIATE 'DROP SEQUENCE %s';
+                EXCEPTION
+                  WHEN OTHERS THEN
+                    IF SQLCODE != -2289 THEN
+                      RAISE;
+                    END IF;
+                END;
+                """.formatted(seqName);
+
+        try {
+            jdbcTemplate.execute(sql);
+        } catch (Exception e) {
+            // ignoramos el error para no bloquear el arranque
+        }
+    }
+
+    private void createSequenceCategoria(int startWith) {
+        jdbcTemplate.execute("""
+                CREATE SEQUENCE CATEGORIA_SEQ
+                START WITH %d
+                INCREMENT BY 1
+                NOCACHE
+                """.formatted(startWith));
     }
 
     // -------------------------------------------------------------------------
@@ -96,13 +139,14 @@ public class DataInitializer implements CommandLineRunner {
                 """);
     }
 
-    // NUEVA TABLA CATEGORIA
+    // TABLA CATEGORIA (con DESCRIPCION)
     private void crearTablaCategoria() {
         jdbcTemplate.execute("""
                 CREATE TABLE CATEGORIA (
-                    ID     NUMBER(10)          PRIMARY KEY,
-                    NOMBRE VARCHAR2(100 CHAR)  NOT NULL,
-                    SLUG   VARCHAR2(100 CHAR)  NOT NULL
+                    ID           NUMBER(10)          PRIMARY KEY,
+                    NOMBRE        VARCHAR2(100 CHAR)  NOT NULL,
+                    SLUG          VARCHAR2(100 CHAR)  NOT NULL,
+                    DESCRIPCION   VARCHAR2(2000 CHAR)
                 )
                 """);
 
@@ -171,7 +215,6 @@ public class DataInitializer implements CommandLineRunner {
                 """);
     }
 
-    // 👇 NUEVA TABLA MENSAJE_CONTACTO
     private void crearTablaMensajeContacto() {
         jdbcTemplate.execute("""
                 CREATE TABLE MENSAJE_CONTACTO (
@@ -186,7 +229,6 @@ public class DataInitializer implements CommandLineRunner {
                 """);
     }
 
-    // 👇 NUEVA TABLA COMPRA
     private void crearTablaCompra() {
         jdbcTemplate.execute("""
                 CREATE TABLE COMPRA (
@@ -198,11 +240,24 @@ public class DataInitializer implements CommandLineRunner {
                 """);
     }
 
+    // ✅ NUEVO: Tabla puente USUARIO_COMPRA
+    private void crearTablaUsuarioCompra() {
+        jdbcTemplate.execute("""
+                CREATE TABLE USUARIO_COMPRA (
+                    USUARIO_ID NUMBER(19,0) NOT NULL,
+                    COMPRA_ID  NUMBER(19,0) NOT NULL,
+                    FECHA_ASOCIACION TIMESTAMP DEFAULT SYSTIMESTAMP,
+                    CONSTRAINT PK_USUARIO_COMPRA PRIMARY KEY (USUARIO_ID, COMPRA_ID),
+                    CONSTRAINT FK_UC_USUARIO FOREIGN KEY (USUARIO_ID) REFERENCES USUARIO(ID),
+                    CONSTRAINT FK_UC_COMPRA  FOREIGN KEY (COMPRA_ID)  REFERENCES COMPRA(ID)
+                )
+                """);
+    }
+
     // -------------------------------------------------------------------------
     // POBLAR USUARIOS
     // -------------------------------------------------------------------------
     private void poblarUsuarios() {
-        // admin / admin123
         jdbcTemplate.update("""
                 INSERT INTO USUARIO (
                     USERNAME, PASSWORD, ROLE, NOMBRE, APELLIDO, RUN,
@@ -222,7 +277,6 @@ public class DataInitializer implements CommandLineRunner {
                 )
                 """);
 
-        // Maria / 1234
         jdbcTemplate.update("""
                 INSERT INTO USUARIO (
                     USERNAME, PASSWORD, ROLE, NOMBRE, APELLIDO, RUN,
@@ -242,7 +296,6 @@ public class DataInitializer implements CommandLineRunner {
                 )
                 """);
 
-        // Pedro / pedro123
         jdbcTemplate.update("""
                 INSERT INTO USUARIO (
                     USERNAME, PASSWORD, ROLE, NOMBRE, APELLIDO, RUN,
@@ -264,27 +317,47 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     // -------------------------------------------------------------------------
-    // POBLAR CATEGORÍAS
+    // POBLAR CATEGORÍAS (con DESCRIPCION default)
     // -------------------------------------------------------------------------
     private void poblarCategorias() {
         jdbcTemplate.update("""
-                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
-                VALUES (1, 'Frutas Frescas', 'frutas-frescas')
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG, DESCRIPCION)
+                VALUES (
+                    1,
+                    'Frutas Frescas',
+                    'frutas-frescas',
+                    'Nuestra selección de frutas frescas ofrece una experiencia directa del campo a tu hogar. Estas frutas se cultivan y cosechan en el punto óptimo de madurez para asegurar su sabor y frescura. Disfruta de una variedad de frutas de temporada que aportan vitaminas y nutrientes esenciales a tu dieta diaria. Perfectas para consumir solas, en ensaladas o como ingrediente principal en postres y smoothies.'
+                )
                 """);
 
         jdbcTemplate.update("""
-                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
-                VALUES (2, 'Verduras Orgánicas', 'verduras-organicas')
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG, DESCRIPCION)
+                VALUES (
+                    2,
+                    'Verduras Orgánicas',
+                    'verduras-organicas',
+                    'Descubre nuestra gama de verduras orgánicas, cultivadas sin el uso de pesticidas ni químicos, garantizando un sabor auténtico y natural. Cada verdura es seleccionada por su calidad y valor nutricional, ofreciendo una excelente fuente de vitaminas, minerales y fibra. Ideales para ensaladas, guisos y platos saludables, nuestras verduras orgánicas promueven una alimentación consciente y sostenible.'
+                )
                 """);
 
         jdbcTemplate.update("""
-                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
-                VALUES (3, 'Productos Orgánicos', 'productos-organicos')
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG, DESCRIPCION)
+                VALUES (
+                    3,
+                    'Productos Orgánicos',
+                    'productos-organicos',
+                    'Nuestros productos orgánicos están elaborados con ingredientes naturales y procesados de manera responsable para mantener sus beneficios saludables. Desde aceites y miel hasta granos y semillas, ofrecemos una selección que apoya un estilo de vida saludable y respetuoso con el medio ambiente. Estos productos son perfectos para quienes buscan opciones alimenticias que aporten bienestar sin comprometer el sabor ni la calidad.'
+                )
                 """);
 
         jdbcTemplate.update("""
-                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG)
-                VALUES (4, 'Productos Lácteos', 'productos-lacteos')
+                INSERT INTO CATEGORIA (ID, NOMBRE, SLUG, DESCRIPCION)
+                VALUES (
+                    4,
+                    'Productos Lácteos',
+                    'productos-lacteos',
+                    'Los productos lácteos de HuertoHogar provienen de granjas locales que se dedican a la producción responsable y de calidad. Ofrecemos una gama de leches, yogures y otros derivados que conservan su frescura y sabor auténtico. Ricos en calcio y nutrientes esenciales, nuestros lácteos son perfectos para complementar una dieta equilibrada, proporcionando el mejor sabor y nutrición para toda la familia.'
+                )
                 """);
     }
 
@@ -460,7 +533,6 @@ public class DataInitializer implements CommandLineRunner {
     // POBLAR PRODUCTO_RECETA
     // -------------------------------------------------------------------------
     private void poblarProductoRecetas() {
-
         insertarRecetaProd(1L, "Ensalada de manzana y nueces");
         insertarRecetaProd(1L, "Tarta de manzana casera");
         insertarRecetaProd(1L, "Jugo natural de manzana y zanahoria");
@@ -509,8 +581,6 @@ public class DataInitializer implements CommandLineRunner {
     // POBLAR BLOGS
     // -------------------------------------------------------------------------
     private void poblarBlogs() {
-
-        // JSON con lista de pasos / puntos (lo que usará el frontend como array)
         String contenido1 = """
                 [
                   "Elige plantas fáciles de mantener como lechugas, hierbas aromáticas o tomates cherry.",
@@ -529,7 +599,6 @@ public class DataInitializer implements CommandLineRunner {
                 ]
                 """;
 
-        // BLOG 1
         jdbcTemplate.update("""
                 INSERT INTO BLOG (
                     BLOG_ID, IMAGEN, ALT, TITULO, TITULO_MODAL,
@@ -547,7 +616,6 @@ public class DataInitializer implements CommandLineRunner {
                 )
                 """, contenido1);
 
-        // BLOG 2
         jdbcTemplate.update("""
                 INSERT INTO BLOG (
                     BLOG_ID, IMAGEN, ALT, TITULO, TITULO_MODAL,
