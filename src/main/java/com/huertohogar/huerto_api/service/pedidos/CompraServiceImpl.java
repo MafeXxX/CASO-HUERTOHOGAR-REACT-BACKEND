@@ -3,10 +3,13 @@ package com.huertohogar.huerto_api.service.pedidos;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huertohogar.huerto_api.model.pedidos.Compra;
+import com.huertohogar.huerto_api.model.productos.Producto;
 import com.huertohogar.huerto_api.repository.pedidos.CompraRepository;
+import com.huertohogar.huerto_api.repository.productos.ProductoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -19,11 +22,26 @@ import java.util.Map;
 public class CompraServiceImpl implements CompraService {
 
     private final CompraRepository compraRepository;
+    private final ProductoRepository productoRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static int toInt(Object v, int fb) {
+        try {
+            if (v == null) return fb;
+            return Integer.parseInt(String.valueOf(v));
+        } catch (Exception e) {
+            return fb;
+        }
+    }
+
     @Override
+    @Transactional
     public Map<String, Object> registrarCompra(Map<String, Object> payload) {
         try {
+            if (payload == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payload vacío");
+            }
+
             if (!payload.containsKey("cliente") || !payload.containsKey("productos")) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -31,6 +49,46 @@ public class CompraServiceImpl implements CompraService {
                 );
             }
 
+            Object productosObj = payload.get("productos");
+            if (!(productosObj instanceof List<?> productosList)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "productos debe ser una lista");
+            }
+
+            // ✅ 1) Descontar stock en DB
+            for (Object itemObj : productosList) {
+                if (!(itemObj instanceof Map<?, ?> item)) continue;
+
+                String codigo = item.get("codigo") != null ? String.valueOf(item.get("codigo")) : null;
+                int cantidad = toInt(item.get("cantidad"), 1);
+
+                if (codigo == null || codigo.isBlank()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cada producto debe incluir 'codigo'");
+                }
+                if (cantidad <= 0) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "cantidad inválida para " + codigo);
+                }
+
+                Producto prod = productoRepository.findByCodigo(codigo)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Producto no encontrado: " + codigo
+                        ));
+
+                int stockActual = (prod.getStock() != null) ? prod.getStock() : 0;
+
+                if (stockActual < cantidad) {
+                    throw new ResponseStatusException(
+                            HttpStatus.CONFLICT,
+                            "Stock insuficiente para " + codigo +
+                                    " (stock=" + stockActual + ", solicitado=" + cantidad + ")"
+                    );
+                }
+
+                prod.setStock(stockActual - cantidad);
+                productoRepository.save(prod);
+            }
+
+            // ✅ 2) Guardar compra (snapshot)
             payload.putIfAbsent("fecha", LocalDateTime.now().toString());
 
             String json = objectMapper.writeValueAsString(payload);
@@ -44,7 +102,6 @@ public class CompraServiceImpl implements CompraService {
 
             Map<String, Object> respuesta = new LinkedHashMap<>(payload);
             respuesta.put("id", guardada.getId());
-
             return respuesta;
 
         } catch (ResponseStatusException e) {
@@ -101,6 +158,7 @@ public class CompraServiceImpl implements CompraService {
                     new TypeReference<Map<String, Object>>() {}
             );
             map.put("id", compra.getId());
+            map.putIfAbsent("fechaCreacion", compra.getFechaCreacion());
             return map;
         } catch (Exception e) {
             throw new ResponseStatusException(

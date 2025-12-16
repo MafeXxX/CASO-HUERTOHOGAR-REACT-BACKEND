@@ -27,7 +27,8 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public Producto buscarPorCodigo(String codigo) {
-        return repo.findByCodigo(codigo);
+        // ✅ findByCodigo ahora devuelve Optional<Producto>
+        return repo.findByCodigo(codigo).orElse(null);
     }
 
     @Override
